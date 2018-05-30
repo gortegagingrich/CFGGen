@@ -1,0 +1,26 @@
+Pn = <'{'> (P1 | D0 | D1 | D2 | D3)* <'}'>;
+<var> = #'[A-Z]+';
+<num> = #'[0-9]+';
+<bool> = 'true' | 'false';
+while = 'while';
+<return> = 'return';
+do = 'do';
+if = 'if';
+else = 'else';
+<semicolon> = ';'
+<mat> = var ('=' | '+=') mathExp;
+<mathExp> = ((num | var) mathOp (num | var) | num | var);
+<mathOp> = '*' | '/' | '+' | '-';
+<init> = type initList;
+<initList> = (var | mat) (',' (var | mat))*;
+<type> = 'int' | 'double';
+<val> = bool | mathExp | boolExp
+<boolExp> = ( '(' val ')' | val) boolOp ( '(' val ')' | val);
+<boolOp> = '&&' | '||' | '==' | '<=' | '>=' | '<' | '>' | '!=';
+<cond> = <'('> P1 <')'>;
+
+P1 = (mat | init | (return val)) semicolon | boolExp;
+D0 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3);
+D1 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3) <else> (Pn | P1 | D0 | D1 | D2 | D3);
+D2 = <while> cond (Pn | P1 | D0 | D1 | D2 | D3);
+D3 = <do> (Pn | P1 | D0 | D1 | D2 | D3) <while> cond <semicolon> ;
