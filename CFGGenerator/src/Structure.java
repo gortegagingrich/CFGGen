@@ -10,7 +10,6 @@ public class Structure {
     private ArrayList<Node> end;
 
     private static final HashMap<String, BiConsumer<Structure, PersistentVector>> CONSUMERS;
-
     static {
         CONSUMERS = new HashMap<>();
         CONSUMERS.put("Pn", (s,v) -> s.structPn(v));
@@ -48,7 +47,8 @@ public class Structure {
         start = new Node(struct);
         end.add(start);
 
-        System.out.println(start.code);
+        // print out this line's code to show that it's doing something
+        System.out.println(start.getCode());
     }
 
     private void structD0(PersistentVector struct) {
