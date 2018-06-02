@@ -4,16 +4,11 @@ import clojure.lang.PersistentVector;
 import com.mxgraph.layout.*;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
-import org.jgrapht.Graph;
-import org.jgrapht.ListenableGraph;
 import org.jgrapht.ext.JGraphXAdapter;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultListenableGraph;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -21,20 +16,23 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
+   public static final IFn FN;
+   public static final String GRAMMAR;
    
-   public static void main(String[] args) {
-      // set up instaparse wrapper
+   static {
+      // set up instaparse-wrapper
       IFn require = Clojure.var("clojure.core", "require");
       require.invoke(Clojure.read("instaparse-wrapper.core"));
+      FN = Clojure.var("instaparse-wrapper.core", "parse-grammar");
       
-      // read grammar
-      IFn fn = Clojure.var("instaparse-wrapper.core", "parse-grammar");
-      String grammar = readGrammar("grammar.txt");
-      
-      testAndPrint(fn, grammar, "tests/test2.txt");
+      GRAMMAR = readGrammar("grammar.txt");
    }
    
-   private static void buildGraph(DefaultDirectedGraph<Node,DefaultEdge> g, Node root) {
+   public static void main(String[] args) {
+      SwingUtilities.invokeLater(() -> new GUI());
+   }
+   
+   public static void buildGraph(DefaultDirectedGraph<Node,DefaultEdge> g, Node root) {
       boolean added;
       String str;
       
@@ -69,7 +67,7 @@ public class Main {
       }
    }
    
-   private static void testAndPrint(IFn fn, String grammar, String test) {
+   public static DefaultDirectedGraph<Node, DefaultEdge> generateGraph(IFn fn, String grammar, String test) {
       System.out.printf("Source: %s\n", test);
       
       try {
@@ -84,25 +82,34 @@ public class Main {
       s.getStart().collapse(new ArrayList<>());
       buildGraph(g, s.getStart());
       
+      return g;
+   }
+   
+   public static JGraphXAdapter<Node,DefaultEdge> graph2Adapter(DefaultDirectedGraph<Node,DefaultEdge> g) {
       JGraphXAdapter<Node, DefaultEdge> graphAdapter = new JGraphXAdapter<>(g);
       graphAdapter.setCellsDisconnectable(false);
       graphAdapter.setCellsDisconnectable(false);
       graphAdapter.setConnectableEdges(false);
-      
+      return graphAdapter;
+   }
+   
+   public static mxGraphComponent graph2Component(DefaultDirectedGraph<Node,DefaultEdge> g) {
+      JGraphXAdapter<Node, DefaultEdge> graphAdapter = graph2Adapter(g);
+   
       mxIGraphLayout layout;
       layout = new mxHierarchicalLayout(graphAdapter);
       ((mxHierarchicalLayout) layout).setInterRankCellSpacing(48);
-      
+   
       layout.execute(graphAdapter.getDefaultParent());
-      
+   
       mxGraphComponent gc = new mxGraphComponent(graphAdapter);
       gc.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
       gc.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-      gc.setPreferredSize(new Dimension(512,512));
       gc.stopEditing(true);
-      
-      JOptionPane.showMessageDialog(null,gc);
-      System.out.println(g);
+   
+      //JOptionPane.showMessageDialog(null,gc);
+   
+      return gc;
    }
    
    private static String readGrammar(String fn) {
