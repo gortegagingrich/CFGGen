@@ -1,4 +1,5 @@
-int I=1,J=2,K=4,M=6,N=8,L=0,F,G;
+int I=1,J,K=4,M=6,N=8,L=0,F,G;
+J = read();
 int S=I+J;
 K=S+1;
 if((K+J)!=(M+F)){
@@ -9,6 +10,7 @@ if((K+J)!=(M+F)){
       K=K+N;
       F=K*N;
       I=I+1;
+      // test
    }
 }
 else
@@ -18,9 +20,18 @@ do{
    K=G*M;
    
    if(N<F)
+      // test
       G=H+N;
    
    F=G-M;
-   N=N+1;
+
+   for ( I = 0; I < N; I += 2) {
+      I--;
+   }
+
+   N++;
 } while(N<=20);
+
+write(F);
+
 return G;

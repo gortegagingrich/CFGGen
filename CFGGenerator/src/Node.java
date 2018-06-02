@@ -1,12 +1,14 @@
 import clojure.lang.PersistentVector;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Node {
+public class Node implements Serializable {
    private ArrayList<Node> prev;
    private ArrayList<Node> next;
    private String code;
-   private int id;
+   private final int id;
    
    private static int count = 0;
    
@@ -25,16 +27,28 @@ public class Node {
       }
    }
    
+   public void collapse(List<Node> visited) {
+      visited.add(this);
+      
+      if (next.size() == 1 && next.get(0).prev.size() == 1) {
+         code = String.format("%s\n%s",code,next.get(0).code);
+         next = next.get(0).next;
+         collapse(visited);
+      } else {
+         for (Node n : next) {
+            if (!visited.contains(n)) {
+               n.collapse(visited);
+            }
+         }
+      }
+   }
+   
    public ArrayList<Node> getPrev() {
       return prev;
    }
    
    public ArrayList<Node> getNext() {
       return next;
-   }
-   
-   public String getCode() {
-      return code;
    }
    
    @Override

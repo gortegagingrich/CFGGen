@@ -19,6 +19,7 @@ public class Structure {
       CONSUMERS.put("D1", Structure::structD1);
       CONSUMERS.put("D2", Structure::structD2);
       CONSUMERS.put("D3", Structure::structD3);
+      CONSUMERS.put("F0", Structure::structF0);
    }
    
    public Structure(PersistentVector struct) {
@@ -26,10 +27,16 @@ public class Structure {
       
       // determine type
       assert (struct.size() > 0)
-              && (struct.get(0).getClass() == Keyword.class)
-              && CONSUMERS.containsKey(struct.get(0));
+              && (struct.get(0).getClass() == Keyword.class);
       
-      CONSUMERS.get(((Keyword)(struct.get(0))).getName()).accept(this, struct);
+      String tag = ((Keyword)struct.get(0)).getName();
+      BiConsumer con = CONSUMERS.get(tag);
+      
+      if (con != null) {
+         CONSUMERS.get(tag).accept(this, struct);
+      } else {
+         System.err.printf("Unsupported control structure: %s\n", tag);
+      }
    }
    
    public Node getStart() {
@@ -53,8 +60,7 @@ public class Structure {
          // all end nodes of a structure should be linked to start node
          // of next consecutive structure
          for (Node n: a.end) {
-            n.getNext().add(b.start);
-            //System.out.printf("linked %s and %s\n",n.getCode(), b.start.getCode());
+            link(n,b.start);
          }
          
          a = b;
@@ -79,7 +85,7 @@ public class Structure {
       
       // connect end of a to start of x
       for (Node n: a.end) {
-         n.getNext().add(x.start);
+         link(n,x.start);
       }
       
       // set start to beginning of a
@@ -104,8 +110,8 @@ public class Structure {
       
       // connect end of a to beginnings of x and y
       for (Node n: a.end) {
-         n.getNext().add(x.start);
-         n.getNext().add(y.start);
+         link(n,x.start);
+         link(n,y.start);
       }
       
       // set start to start of a
@@ -128,12 +134,12 @@ public class Structure {
       
       // connect end of a and start of x
       for (Node n: a.end) {
-         n.getNext().add(x.start);
+         link(n,x.start);
       }
       
       // connect end of x to start of a
       for (Node n: x.end) {
-         n.getNext().add(a.start);
+         link(n,a.start);
       }
       
       // set start to start of a
@@ -153,12 +159,12 @@ public class Structure {
       
       // connect end of x to start of a
       for (Node n: x.end) {
-         n.getNext().add(a.start);
+         link(n,a.start);
       }
       
       // connect end of a to start of x
       for (Node n: a.end) {
-         n.getNext().add(x.start);
+         link(n,x.start);
       }
       
       // set beginning to start of x
@@ -166,5 +172,44 @@ public class Structure {
       
       // add end of a to end
       end.addAll(a.end);
+   }
+   
+   private void structF0(PersistentVector struct) {
+      System.out.println(struct);
+      Structure a, b, c, x;
+      
+      // of format "for (a ; b; c) x"
+      a = new Structure((PersistentVector)struct.get(1));
+      b = new Structure((PersistentVector)struct.get(2));
+      c = new Structure((PersistentVector)struct.get(3));
+      x = new Structure((PersistentVector)struct.get(4));
+      
+      // connect a to b
+      for (Node n: a.end) {
+         link(n,b.start);
+      }
+      
+      // connect b to x
+      for (Node n: b.end) {
+         link(n,x.start);
+      }
+      
+      // connect x to c
+      for (Node n: x.end) {
+         link(n,c.start);
+      }
+      
+      // connect c to b
+      for (Node n: c.end) {
+         link(n,b.start);
+      }
+      
+      start = a.start;
+      end.addAll(b.end);
+   }
+   
+   private static void link(Node a, Node b) {
+      a.getNext().add(b);
+      b.getPrev().add(a);
    }
 }

@@ -1,4 +1,4 @@
-Pn = <'{'> (P1 | D0 | D1 | D2 | D3)* <'}'>;
+Pn = <'{'> (P1 | D0 | D1 | D2 | D3 | F0 | <lineComment>)* <'}'>;
 <var> = #'[A-Z]+';
 <num> = #'[0-9]+';
 <bool> = 'true' | 'false';
@@ -7,20 +7,27 @@ while = 'while';
 do = 'do';
 if = 'if';
 else = 'else';
-<semicolon> = ';'
-<mat> = var ('=' | '+=') mathExp;
-<mathExp> = ((num | var) mathOp (num | var) | num | var);
+for = 'for';
+<triCond> = <'('> init <')'>;
+<read> = 'read()';
+<write> = 'write(' val ')';
+<semicolon> = <';'>
+<mat> = (var ('=' | '+=') mathExp | var ('++' | '--'));
+<mathExp> = ((num | var) mathOp (num | var) | num | var | read);
 <mathOp> = '*' | '/' | '+' | '-';
 <init> = type initList;
 <initList> = (var | mat) (',' (var | mat))*;
 <type> = 'int' | 'double';
-<val> = bool | mathExp | boolExp
+<val> = bool | mathExp | boolExp | read
 <boolExp> = ( '(' val ')' | val) boolOp ( '(' val ')' | val);
 <boolOp> = '&&' | '||' | '==' | '<=' | '>=' | '<' | '>' | '!=';
-<cond> = <'('> P1 <')'>;
+<cond> = (<'('> P1 <')'>) | P1 <semicolon>;
+lineComment = '//' #'[^\n]*' '\n';
 
-P1 = (mat | init | (return val)) semicolon | boolExp;
-D0 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3);
-D1 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3) <else> (Pn | P1 | D0 | D1 | D2 | D3);
-D2 = <while> cond (Pn | P1 | D0 | D1 | D2 | D3);
-D3 = <do> (Pn | P1 | D0 | D1 | D2 | D3) <while> cond <semicolon> ;
+
+P1 = <lineComment*> (mat | init | (return val) | write) semicolon <lineComment*> | boolExp | mat;
+D0 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3 | F0);
+D1 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3 | F0) <else> (Pn | P1 | D0 | D1 | D2 | D3 | F0);
+D2 = <while> cond (Pn | P1 | D0 | D1 | D2 | D3 | F0);
+D3 = <do> (Pn | P1 | D0 | D1 | D2 | D3 | F0) <while> cond <semicolon> ;
+F0 = <for '('> P1 cond P1 <')'> (Pn | P1 | D0 | D1 | D2 | D3 | F0);
