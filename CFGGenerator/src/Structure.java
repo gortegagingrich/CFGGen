@@ -175,7 +175,6 @@ public class Structure {
    }
    
    private void structF0(PersistentVector struct) {
-      System.out.println(struct);
       Structure a, b, c, x;
       
       // of format "for (a ; b; c) x"

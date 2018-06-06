@@ -68,8 +68,6 @@ public class Main {
    }
    
    public static DefaultDirectedGraph<Node, DefaultEdge> generateGraph(IFn fn, String grammar, String test) {
-      System.out.printf("Source: %s\n", test);
-      
       try {
          test = readTest(test);
       } catch (Exception e) {

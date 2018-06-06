@@ -5,10 +5,13 @@ K=S+1;
 if((K+J)!=(M+F)){
    F=M+N;
    G=M*N;
-   
+
    while (I<=N&&G<(F+I)) {
       K=K+N;
       F=K*N;
+      for (X = 0; X < 10; X++) {
+        write(X);
+      }
       I=I+1;
       // test
    }
@@ -22,7 +25,7 @@ do{
    if(N<F)
       // test
       G=H+N;
-   
+
    F=G-M;
 
    for ( I = 0; I < N; I += 2) {

@@ -1,5 +1,5 @@
 Pn = <'{'> (P1 | D0 | D1 | D2 | D3 | F0 | <lineComment>)* <'}'>;
-<var> = #'[A-Z]+';
+<var> = #'[A-Za-z]+';
 <num> = #'[0-9]+';
 <bool> = 'true' | 'false';
 while = 'while';
@@ -24,8 +24,7 @@ for = 'for';
 <cond> = (<'('> P1 <')'>) | P1 <semicolon>;
 lineComment = '//' #'[^\n]*' '\n';
 
-
-P1 = <lineComment*> (mat | init | (return val) | write) semicolon <lineComment*> | boolExp | mat;
+P1 = <lineComment*> (mat | init | (return val) | write | val) semicolon <lineComment*> | boolExp | mat;
 D0 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3 | F0);
 D1 = <if> cond (Pn | P1 | D0 | D1 | D2 | D3 | F0) <else> (Pn | P1 | D0 | D1 | D2 | D3 | F0);
 D2 = <while> cond (Pn | P1 | D0 | D1 | D2 | D3 | F0);
