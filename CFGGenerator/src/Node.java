@@ -30,7 +30,10 @@ public class Node implements Serializable {
    public void collapse(List<Node> visited) {
       visited.add(this);
       
-      if (next.size() == 1 && next.get(0).prev.size() == 1) {
+      // this should only have one next node
+      // next should only have one previous node
+      // next.next should not contain this
+      if (next.size() == 1 && next.get(0).prev.size() == 1 && !next.get(0).next.contains(this)) {
          code = String.format("%s\n%s",code,next.get(0).code);
          next = next.get(0).next;
          collapse(visited);
